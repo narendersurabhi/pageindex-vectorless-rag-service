@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Header, HTTPException, status
 
 from vectorless_rag_service.config import settings
 
@@ -12,5 +12,4 @@ def api_key_auth(x_api_key: str | None = Header(default=None)) -> None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key")
 
 
-def require_api_key(dep=Depends(api_key_auth)) -> None:  # noqa: ANN001
-    return dep
+__all__ = ["api_key_auth"]

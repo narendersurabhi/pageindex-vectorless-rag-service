@@ -4,7 +4,7 @@ from uuid import UUID
 
 from vectorless_rag_service.core.interfaces import IndexBuilder
 from vectorless_rag_service.core.models import IndexArtifact, IndexNode, TextSpan
-from vectorless_rag_service.indexing.parser import iter_sections, parse_text, PageContent
+from vectorless_rag_service.indexing.parser import PageContent, iter_sections, parse_text
 
 
 def build_spans(pages: list[PageContent]) -> list[TextSpan]:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from collections.abc import Iterable
 from uuid import UUID
 
 from vectorless_rag_service.core.models import IndexArtifact, JobRecord, QueryRequest, QueryResponse
@@ -35,7 +35,7 @@ class ArtifactStore(ABC):
 
 class LLMClient(ABC):
     @abstractmethod
-    def complete_json(self, prompt: str) -> dict:
+    def complete_json(self, prompt: str) -> dict[str, object]:
         raise NotImplementedError
 
 
@@ -71,5 +71,5 @@ class MetadataStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_jobs(self) -> Iterable:
+    def list_jobs(self) -> Iterable[JobRecord]:
         raise NotImplementedError

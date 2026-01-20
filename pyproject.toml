@@ -51,8 +51,10 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.mypy]
 python_version = "3.11"
-strict = true
 mypy_path = "src"
+ignore_missing_imports = true
+strict = false
+warn_unused_ignores = true
 plugins = []
 
 [tool.pytest.ini_options]

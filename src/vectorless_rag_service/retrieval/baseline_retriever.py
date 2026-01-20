@@ -6,7 +6,13 @@ from collections import Counter
 from rapidfuzz import fuzz
 
 from vectorless_rag_service.core.interfaces import VectorlessRetriever
-from vectorless_rag_service.core.models import Citation, IndexArtifact, QueryRequest, QueryResponse, QueryTrace
+from vectorless_rag_service.core.models import (
+    Citation,
+    IndexArtifact,
+    QueryRequest,
+    QueryResponse,
+    QueryTrace,
+)
 
 
 def tokenize(text: str) -> list[str]:
@@ -41,7 +47,9 @@ class BaselineTreeRetriever(VectorlessRetriever):
 
         def score_node(node_id: str) -> float:
             node = nodes_by_id[node_id]
-            return score_text(request.question, node.title) + bm25_like(request.question, node.title)
+            return score_text(request.question, node.title) + bm25_like(
+                request.question, node.title
+            )
 
         current_ids = [artifact.nodes[0].node_id]
         best_nodes: list[tuple[str, float]] = []

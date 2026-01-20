@@ -10,20 +10,24 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, File, Header, Upl
 from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
-from vectorless_rag_service.api.deps import require_api_key
+from vectorless_rag_service.api.deps import api_key_auth
 from vectorless_rag_service.api.errors import error_response
 from vectorless_rag_service.config import settings
 from vectorless_rag_service.core.models import DocumentCreate, JobStatus, QueryRequest
 from vectorless_rag_service.indexing.index_builder import BaselineIndexBuilder
 from vectorless_rag_service.indexing.parser import parse_pdf
 from vectorless_rag_service.observability.logging import get_logger
-from vectorless_rag_service.observability.metrics import ERROR_COUNT, INDEX_DURATION, JOB_QUEUE_DEPTH
+from vectorless_rag_service.observability.metrics import (
+    ERROR_COUNT,
+    INDEX_DURATION,
+    JOB_QUEUE_DEPTH,
+)
 from vectorless_rag_service.retrieval.pageindex_retriever import PageIndexRetriever
 from vectorless_rag_service.storage.artifacts import build_artifact_store
 from vectorless_rag_service.storage.database import init_db
 from vectorless_rag_service.storage.metadata_store import IndexArtifactStore, SqlMetadataStore
 
-router = APIRouter(dependencies=[Depends(require_api_key)])
+router = APIRouter(dependencies=[Depends(api_key_auth)])
 logger = get_logger()
 metadata_store = SqlMetadataStore()
 artifact_store = build_artifact_store()
@@ -51,13 +55,14 @@ async def readyz():
 async def create_document(
     background_tasks: BackgroundTasks,
     payload: Annotated[DocumentCreate | None, Body(default=None)] = None,
-    file: UploadFile | None = File(default=None),
+    file: Annotated[UploadFile | None, File()] = None,
     idempotency_key: Annotated[str | None, Header(default=None)] = None,
 ):
     _ = idempotency_key
     if file is None and (payload is None or payload.text is None):
         error_response(400, "invalid_request", "Provide a file or text payload")
 
+    filename: str | None
     if file is not None:
         if file.content_type not in {"application/pdf", "text/plain"}:
             error_response(400, "invalid_content_type", "Only PDF or text files allowed")
@@ -75,7 +80,7 @@ async def create_document(
         tmp_path.unlink(missing_ok=True)
         filename = file.filename
     else:
-        text = payload.text if payload else ""
+        text = payload.text or "" if payload else ""
         filename = None
 
     if len(text) > settings.limits.max_text_length:
