@@ -14,3 +14,4 @@ This file tracks changes made to the repository by automated agents.
 - Fixed filename typing in document upload handler to satisfy mypy.
 - Declared filename type upfront for document upload handler typing.
 - Ensured text payload defaulting avoids Optional assignment in upload handler.
+- Updated Makefile and CI to create a uv virtualenv before installing dev dependencies.

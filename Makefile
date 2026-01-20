@@ -1,26 +1,32 @@
 .PHONY: setup lint format type test test-integration run docker-build compose-up compose-down
 
+VENV ?= .venv
+VENV_BIN = $(VENV)/bin
+PYTHON = $(VENV_BIN)/python
+UV ?= uv
+
 setup:
-	uv pip install -e ".[dev]"
+	$(UV) venv $(VENV)
+	$(UV) pip install --python $(PYTHON) -e ".[dev]"
 
 lint:
-	ruff check src tests
-	ruff format --check src tests
+	$(VENV_BIN)/ruff check src tests
+	$(VENV_BIN)/ruff format --check src tests
 
 format:
-	ruff format src tests
+	$(VENV_BIN)/ruff format src tests
 
 type:
-	mypy src
+	$(VENV_BIN)/mypy src
 
 test:
-	pytest tests/unit tests/contract
+	$(VENV_BIN)/pytest tests/unit tests/contract
 
 test-integration:
-	pytest tests/integration
+	$(VENV_BIN)/pytest tests/integration
 
 run:
-	uvicorn vectorless_rag_service.main:app --host 0.0.0.0 --port 8000
+	$(VENV_BIN)/uvicorn vectorless_rag_service.main:app --host 0.0.0.0 --port 8000
 
 docker-build:
 	docker build -f deploy/docker/Dockerfile -t vectorless-rag-service:local .
